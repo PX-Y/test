@@ -2,11 +2,11 @@
 
 See [small_experiments/README.md](small_experiments/README.md) for the exact settings, required input paths, and complete training logs.
 
-- [Global single-file script](small_experiments/standalone/train_global.py): primal-first, LR `7e-4`, weight decay `0.4`; best validation loss `3.525939`.
-- [STE single-file script](small_experiments/standalone/train_ste.py): same FP mask as Global, LR `1e-3`, weight decay `0.1`; best validation loss `3.539313`.
+- [Global training script](small_experiments/global/train_global.py): primal-first, LR `7e-4`, weight decay `0.4`; best validation loss `3.525939`.
+- [STE training script](small_experiments/ste_global_mask/train_ste.py): same FP mask as Global, LR `1e-3`, weight decay `0.1`; best validation loss `3.539313`.
 - Original training logs: [Global](small_experiments/global/train-original.log), [STE](small_experiments/ste_global_mask/train-original.log).
 
-Run either script with Python, without command-line configuration flags. Custom modules are embedded in the single-file editions; the Python/CUDA dependencies, dataset token files and initialization/mask checkpoints are described in the linked README.
+Run either script with Python, without command-line configuration flags. Keep its adjacent custom modules in place; the Python/CUDA dependencies, dataset token files and initialization/mask checkpoints are described in the linked README.
 
 ## Original XL commands
 

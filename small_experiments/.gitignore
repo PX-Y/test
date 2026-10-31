@@ -2,8 +2,6 @@ __pycache__/
 *.py[cod]
 .venv/
 out/
-out_global/
-out_ste_global_mask/
 *.pt
 *.pth
 *.bin

@@ -27,23 +27,23 @@
 
 两者均从保留的重建 FineWeb 浮点起点初始化。STE 只读取 Global 的 mask，不使用 Global 训练后的权重初始化。这里的 STE 是后来 mask 对齐的新实验，不是之前随机 mask、loss=3.548665 的那组。
 
-## 推荐：单文件直接运行
+## 直接运行
 
-`standalone/train_global.py` 和 `standalone/train_ste.py` 已把自定义 Python 配件打包内嵌，分别运行即可，不需要 `experiment.py`、`configurator.py` 或命令行附加参数：
+在本目录运行以下命令即可，不需要 `experiment.py`、`configurator.py` 或命令行附加参数。保留各脚本旁的 `model.py`、量化模块等配件：
 
 ```bash
-python train_global.py
+python global/train_global.py
 ```
 
 或者：
 
 ```bash
-python train_ste.py
+python ste_global_mask/train_ste.py
 ```
 
-它们分别写入脚本旁的 `out_global/` 和 `out_ste_global_mask/`，互不覆盖。参数直接在代码顶部对应赋值处修改，`exec(configurator.py)` 已移除。固定为单 GPU，不受调度器 RANK 环境变量影响。
+它们分别写入 `global/out/` 和 `ste_global_mask/out/`，互不覆盖。参数直接在代码顶部对应赋值处修改，`exec(configurator.py)` 已移除。固定为单 GPU，不受调度器 RANK 环境变量影响。
 
-需要使用具有 PyTorch CUDA、numpy 等依赖的 Python 环境；现有 EFabric `/home/xpan92/nanoGPT/.venv/bin/python` 已有依赖。单文件内嵌的是我们自定义的 model/量化配件，不包含 PyTorch 等第三方库。
+需要使用具有 PyTorch CUDA、numpy 等依赖的 Python 环境；现有 EFabric `/home/xpan92/nanoGPT/.venv/bin/python` 已有依赖。目录内附有自定义 model/量化配件，不包含 PyTorch 等第三方库。
 
 ## 输入文件
 
