@@ -1,9 +1,9 @@
-# Reproduction of best Global: primal_first=True, LR=7e-4, WD=0.4.
-# Best validation loss 3.525939 at iteration 4800. Run: python train_global.py
+# Global G2: LR=6e-4, WD=0.4, L1=0.03/0.03, min_lr=0, Fisher/LR warmup=50/50.
+# Best periodic-mix validation loss 3.516509 at iteration 4800.
 """GPT-2 small periodic 4-bit QAT, 5000-iteration adaptation.
 Time milestones and control intervals scaled from the original 15000-step schedule.
-Grid step=0.01, LR=7e-4, WD=0.4; global phase; tran_grid; primal-first enabled; STE disabled.
-Fisher/LR warmup=150, phase freeze=600, waves=4000-4500/4500-4700/4700-4900.
+Grid step=0.01, LR=6e-4; global phase; tran_grid; STE disabled.
+Fisher/LR warmup=50/50, phase freeze=600, waves=4000-4500/4500-4700/4700-4900.
 Initializes from the existing FineWeb-trained small weights. No optimizer saved.
 """
 import os
@@ -74,7 +74,7 @@ periodic_period = 20
 periodic_phase_scope = 'global'
 periodic_fp_groups_per_row = 1
 periodic_refresh_interval = 83  # 5000-step schedule
-periodic_warmup_iters = 150
+periodic_warmup_iters = 50
 periodic_score_ema_decay = 0.9
 periodic_phase_switch_margin = 0.05
 periodic_hard80_iter = 4000
@@ -83,7 +83,7 @@ periodic_hard95_iter = 4700
 periodic_phase_dtype = torch.uint8
 periodic_beta_auto = True
 periodic_beta_fallback = 3.08
-periodic_val_budget_start = 3.70
+periodic_val_budget_start = 3.7
 periodic_val_budget_middle = 3.45
 periodic_val_budget_final = 3.45
 periodic_tau_initial = 5e-6  # independent of task LR
@@ -154,8 +154,8 @@ v4_clip_active_steps = 333  # 5000-step schedule
 v4_clip_max_move = 0.0         # max |dw| per step caused by clipping (scaled with step); 0 = no cap
 v3_tau_mode = 'lr'            # 'fixed' = v2 periodic_tau_initial; 'lr' = c_group*lr
 v3_c_group = 1e-09            # lr1e4 config (group shrink off; was 0.2); group pull per step relative to the AdamW step
-v3_l1_c_s1 = 0.1
-v3_l1_c_s2 = 0.1
+v3_l1_c_s1 = 0.03
+v3_l1_c_s2 = 0.03
 v3_l1_ramp_iters = 167  # 5000-step schedule
 pull_shape = 'tran_grid'
 pull_fisher = False           # tran_grid only: scale tau per weight by row-normalised sqrt(v_hat)
@@ -215,8 +215,8 @@ n_embd = 768
 dropout = 0.0 # for pretraining 0 is good, for finetuning try 0.1+
 bias = True # do we use bias inside LayerNorm and Linear layers?
 # adamw optimizer
-learning_rate = 0.0007
-max_iters = 5000  # 5000-step schedule
+learning_rate = 0.0006
+max_iters = 5000
 weight_decay = 0.4
 beta1 = 0.9
 beta2 = 0.95
@@ -237,9 +237,9 @@ row_group_weight_by_sqrt_width = True
 row_group_eps = 1e-12
 # learning rate decay settings
 decay_lr = True # whether to decay the learning rate
-warmup_iters = 150
+warmup_iters = 50
 lr_decay_iters = 5000  # 5000-step schedule
-min_lr = 0.00007
+min_lr = 0
 # min_lr = 0 # minimum learning rate, should be ~= learning_rate/10 per Chinchilla
 # DDP settings
 backend = 'nccl' # 'nccl', 'gloo', etc.
@@ -249,7 +249,7 @@ dtype = 'bfloat16' if torch.cuda.is_available() and torch.cuda.is_bf16_supported
 compile = False # use PyTorch 2.0 to compile the model to be faster
 # -----------------------------------------------------------------------------
 config_keys = [k for k,v in globals().items() if not k.startswith('_') and isinstance(v, (int, float, bool, str))]
-# All experiment parameters are fixed above; no CLI or external config is loaded.
+# Experiment parameters are fixed above; no external configuration.
 config = {k: globals()[k] for k in config_keys} # will be useful for logging
 # v4: radii and per-step moves are expressed for the 0.06 grid; rescale them for
 # another step (e.g. 4-bit, step 0.01) so the relative behaviour is unchanged.
@@ -353,7 +353,7 @@ if str(v3_hard_mode) == 'envelope':
         previous_deadline, previous_target = deadline, target
 
 # various inits, derived attributes, I/O setup
-ddp = False  # Fixed reproduction recipe: one GPU, regardless of scheduler RANK variables.
+ddp = False  # Fixed single-GPU reproduction.
 if ddp:
     init_process_group(backend=backend)
     ddp_rank = int(os.environ['RANK'])
