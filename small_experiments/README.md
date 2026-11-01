@@ -4,7 +4,7 @@
 
 ## 配置
 
-| 参数 | Global G2 | STE 随机共同 phase |
+| 参数 | Global G2 | STE 随机生成初始phase，然后建立同款mask |
 |---|---|---|
 | 模型 | GPT-2 small，12层/12 heads/宽度768，约124M | 相同 |
 | 初始化 | 重建 FineWeb 浮点5000步权重 | 同一起点，不使用 Global 量化后权重 |
