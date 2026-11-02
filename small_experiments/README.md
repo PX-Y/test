@@ -1,16 +1,16 @@
-# GPT-2 small：Global G2 与 STE 对照
+# GPT-2 small：Global G6 与 STE 对照
 
-本目录提供当前最好 Global **G2** 的固定参数代码与完整训练日志。STE 仅记录参数和结果，不包含 STE 源码。
+本目录提供当前最好 Global **G6** 的固定参数代码与完整训练日志。STE 仅记录参数和结果，不包含 STE 源码。
 
 ## 配置
 
-| 参数 | Global G2 | STE 随机生成初始phase，然后建立同款mask |
+| 参数 | Global G6 | STE 随机生成初始phase，然后建立同款mask |
 |---|---|---|
 | 模型 | GPT-2 small，12层/12 heads/宽度768，约124M | 相同 |
 | 初始化 | 重建 FineWeb 浮点5000步权重 | 同一起点，不使用 Global 量化后权重 |
 | 训练步数 | 5000 | 5000 |
 | LR / min_lr | **6e-4 / 0** | 1e-3 / 0 |
-| WD | 0.4 | 0.3 |
+| WD | 0.5 | 0.3 |
 | Fisher / LR warmup | **50 / 50** | 无 / 300 |
 | L1 s1 / s2 | **0.03 / 0.03** | 不适用 |
 | primal_first / pull_shape | True / tran_grid | 不适用 |
@@ -25,17 +25,17 @@
 | AdamW betas / grad clip | 0.9,0.95 / 1.0 | 相同 |
 | 精度 / compile | bfloat16 / False | 相同 |
 | 验证间隔 / eval batches | 100 / 50 | 相同 |
-| Best val loss / iteration | **3.516509 / 4800** | **3.519908 / 4800** |
-| Final val loss / iteration | 3.5514 / 5000 | 3.552879 / 5000 |
+| Best val loss / iteration | **3.514864 / 4800** | **3.519908 / 4800** |
+| Final val loss / iteration | 3.5509 / 5000 | 3.552879 / 5000 |
 
 ## 评估结果
 
-| 数据集 | Global G2 | STE 随机 phase |
+| 数据集 | Global G6 | STE 随机 phase |
 |---|---:|---:|
-| WikiText 验证 | **4.096863** | 4.130829 |
-| WikiText 测试 | **4.027134** | 4.061563 |
-| CNN/DailyMail | **3.534492** | 3.544739 |
-| arXiv | **4.073901** | 4.107883 |
-| LAMBADA | 3.743793 | **3.742901** |
-| PG19 | **3.825910** | 3.830295 |
-| FineWeb 留出集 | **3.602857** | 3.604145 |
+| WikiText 验证 | **4.101398** | 4.130829 |
+| WikiText 测试 | **4.030696** | 4.061563 |
+| CNN/DailyMail | **3.538491** | 3.544739 |
+| arXiv | **4.078955** | 4.107883 |
+| LAMBADA | **3.739464** | 3.742901 |
+| PG19 | **3.822147** | 3.830295 |
+| FineWeb 留出集 | **3.601566** | 3.604145 |

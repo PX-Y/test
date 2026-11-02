@@ -1,5 +1,5 @@
-# Global G2: LR=6e-4, WD=0.4, L1=0.03/0.03, min_lr=0, Fisher/LR warmup=50/50.
-# Best periodic-mix validation loss 3.516509 at iteration 4800.
+# Global G6: LR=6e-4, WD=0.5, L1=0.03/0.03, min_lr=0, Fisher/LR warmup=50/50.
+# Best periodic-mix validation loss 3.514864 at iteration 4800.
 """GPT-2 small periodic 4-bit QAT, 5000-iteration adaptation.
 Time milestones and control intervals scaled from the original 15000-step schedule.
 Grid step=0.01, LR=6e-4; global phase; tran_grid; STE disabled.
@@ -217,7 +217,7 @@ bias = True # do we use bias inside LayerNorm and Linear layers?
 # adamw optimizer
 learning_rate = 0.0006
 max_iters = 5000
-weight_decay = 0.4
+weight_decay = 0.5
 beta1 = 0.9
 beta2 = 0.95
 grad_clip = 1.0 # clip gradients at this value, or disable if == 0.0
