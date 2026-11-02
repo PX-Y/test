@@ -1,6 +1,5 @@
 # GPT-2 small：Global G6 与 STE 对照
 
-本目录提供当前最好 Global **G6** 的固定参数代码与完整训练日志。STE 仅记录参数和结果，不包含 STE 源码。
 
 ## 配置
 
