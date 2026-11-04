@@ -42,8 +42,6 @@
 
 ## 本次实验：Global B 与 STE（step=0.03）
 
-以下为本次新增实验，保留上方 step=0.01 的历史记录。仅提供 Global 的代码和日志，STE 仅记录配置与结果。
-
 ### 配置
 
 | 参数 | Global B | STE 随机共同 phase |
@@ -72,11 +70,6 @@
 | Best val loss / iteration | **3.490158 / 4800**（periodic-mix） | **3.498702 / 4800** |
 | Final val loss / iteration | **3.5209 / 5000**（periodic-mix） | **3.530985 / 5000** |
 
-### 结构与训练方式
-
-GPT-2 Small 共12个 Transformer block。每层量化 `attn.c_attn`、`attn.c_proj`、`mlp.c_fc`、`mlp.c_proj` 的权重，共48个目标矩阵、84,934,656个目标参数；其余参数保持浮点。目标矩阵按列模20划分，每行一个余数组保留浮点，其余19组使用4bit格点；不同 phase 对应不同列数，因此两者实际 FP 比例略有差异。
-
-Global B 使用连续权重训练，配合 primal-first、tran_grid 拉力与逐步收缩，在三轮 wave 中提交硬量化，最终完成所有非 FP 余数组。STE 使用固定随机共同 phase=15 的周期 mask，前向对非 FP 坐标量化，反向更新浮点影子权重。本次评估使用两者各自的原始 FP mask。
 
 ### 评估结果
 
@@ -91,22 +84,3 @@ Global B 使用连续权重训练，配合 primal-first、tran_grid 拉力与逐
 | LAMBADA | **3.703354** | 3.729701 |
 | PG19 | **3.761803** | 3.802337 |
 | FineWeb 留出集 | **3.578797** | 3.583558 |
-
-本次 Global B 在7项评估中 loss 均低于 STE。
-
-### Global 文件与运行
-
-- [Global B 固定参数代码](global/train_global_step003_B.py)
-- [Global B 完整训练日志](global/train-step003-B.log)
-- [续跑状态工具](global/resume_utils.py)
-
-参数已写入脚本，无需外加训练参数；保留同目录现有的 `model.py`、`periodic_dynamic_ops_v3.py`、`periodic_rowdual_ops.py` 和 `qat_prox2/` 配件。
-
-```bash
-cd small_experiments/global
-python -u train_global_step003_B.py
-```
-
-训练数据目录由 `data_root` 指定（默认 `/home/xpan92/nanoGPT/data`）；初始化由 `init_ckpt_path` 指向原 FineWeb 浮点5000步权重。换机器时只需修改这两个路径，并保留起点旁的 `model_config.json`。数据集和 checkpoint 不包含在仓库内。
-
-本次脚本输出到 `global/out/step003-B/`，与旧 G6 输出分开。每100步覆盖保存 `training_resume.pt`，包含连续训练权重、优化器、随机数、数据位置、Fisher/phase/dual/wave 状态；相同代码和配置重启会自动续跑。best/final 单独保存且不含优化器；突然终止时可能需要重跑最后一次存档之后的步骤。
