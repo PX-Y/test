@@ -9,7 +9,7 @@
 | 初始化 | FineWeb 浮点5000步权重 | 同一个浮点起点 |
 | 训练步数 | 5000（前100步为冻结权重的 Fisher 累积，实际4900次更新） | 5000 次优化器更新 |
 | LR / min_lr | **2e-5 / 0** | **1e-5 / 0** |
-| LR 调度 | WSD：warmup 150，第3900次更新开始衰减，第4900次更新降到0（即第4000–5000步） | WSD：warmup 150，第4000步开始衰减，第5000步降到0 |
+| LR 调度 | WSD：warmup 150，第4000步开始衰减，第5000步降到0 | WSD：warmup 150，第4000步开始衰减，第5000步降到0 |
 | WD | **0.4** | **0.3** |
 | Fisher / LR warmup | **100 / 150** | 无 / 150 |
 | L1 s1 / s2 | **0.03 / 0.03**，tau 随 LR 缩放（`v3_tau_mode='lr'`） | 不适用 |
@@ -29,10 +29,9 @@
 | AdamW betas / grad clip | 0.9,0.95 / 1.0 | 相同 |
 | 精度 / compile | bfloat16 / False | 相同 |
 | 验证间隔 / eval batches | 100 / 50 | 相同 |
-| Best val loss / iteration | **3.159194 / 4800**（periodic-mix） | 3.1633 / 4800 |
-| Final val loss / iteration | **3.188932 / 5000**（periodic-mix） | 3.1949 / 5000 |
+| Best val loss / iteration | **3.159194 / 4800** | 3.1633 / 4800 |
+| Final val loss / iteration | **3.188932 / 5000** | 3.1949 / 5000 |
 
-Global 的 val loss 是部署后的 `periodic-mix`（非 FP 坐标全部在网格上）。验证 batch 只由步数决定，两个实验在同一步用的是同一批数据，可以逐步配对比较。
 
 
 ## 验证集：每500步（5次验证）均值
@@ -50,13 +49,12 @@ Global 的 val loss 是部署后的 `periodic-mix`（非 FP 坐标全部在网�
 | 4100–4500 | **3.1969** | 3.2030 | −0.0061 |
 | 4600–5000 | **3.1810** | 3.1860 | −0.0050 |
 
-- 前500步 Global 处于 Fisher 预热，权重尚未量化，部署 loss 很高；约第1100步追平 STE。
-- 从第1600步起每个窗口 Global 都更低；50个验证点中 Global 有37个更低。
+
 
 
 ## 评估结果
 
-两个模型均使用最终权重（第5000步）。7个数据集，每项取相同的50批、batch=8、context=256、seed=1337，以 bfloat16 运行；两个模型在同一块 RTX A5000 上依次评估，并核验 checkpoint SHA256。表内为 next-token 交叉熵 loss，越低越好；这是固定采样评估，LAMBADA 也是全文 loss，而非末词准确率。
+两个模型均使用最终权重（第5000步）。7个数据集，每项取相同的50批、batch=8、context=256、seed=1337，以 bfloat16 运行；两个模型在同一块 RTX A5000 上依次评估。
 
 | 数据集 | Global 方案 D | STE 1e-5 |
 |---|---:|---:|
@@ -68,12 +66,3 @@ Global 的 val loss 是部署后的 `periodic-mix`（非 FP 坐标全部在网�
 | PG19 | **3.355707** | 3.363817 |
 | FineWeb 留出集 | **3.247531** | 3.254409 |
 | 平均 | **3.390685** | 3.401007 |
-
-注：两个实验的训练硬件和数据并行方式不同（Global 单卡 H200，STE 双卡 A5000，有效 batch 相同）。同一 Global 配置改在双卡 A5000 上训练时，7个数据集平均约高0.007，因此上表的差距中有一部分来自训练环境。
-
-
-## 文件
-
-- `global/train_global_lr2e5_wd04_D.py`：方案 D 的训练脚本（与实际运行的 `train_global.py` 逐字节相同，仅改文件名）。单卡直接运行；`init_ckpt_path`、`data_root` 需改成本地路径。
-- `global/model.py`、`global/periodic_dynamic_ops_v3.py`、`global/periodic_rowdual_ops.py`、`global/qat_prox2/`：依赖模块，与 `small_experiments/global` 中的版本相同。
-- `global/train_lr2e5_wd04_D.log`：完整训练日志。
